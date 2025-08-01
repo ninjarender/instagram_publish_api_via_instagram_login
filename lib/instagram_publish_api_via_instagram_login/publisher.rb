@@ -33,7 +33,8 @@ module InstagramPublishApiViaInstagramLogin
 
     private
 
-    def create_media_container(ig_id:, media_url:, media_type: "IMAGE", is_carousel_item: false, upload_type: nil, caption: nil)
+    def create_media_container(ig_id:, media_url:, media_type: "IMAGE", is_carousel_item: false, upload_type: nil,
+                               caption: nil)
       path = "#{INSTAGRAM_GRAPH_API_ENDPOINT}/#{GRAPH_API_VERSION}/#{ig_id}/media"
 
       body = { access_token: access_token, media_type: media_type, caption: caption }
@@ -60,10 +61,22 @@ module InstagramPublishApiViaInstagramLogin
 
     def wait_for_media_container_status(media_container_id:)
       loop do
-        status = check_media_container_status(media_container_id: media_container_id)
-        break if status["status"] == "FINISHED"
+        status = check_media_container_status(media_container_id: media_container_id)["status"]
 
-        sleep 30
+        case status
+        when "FINISHED"
+          break
+        when "IN_PROGRESS"
+          sleep 30
+        when "EXPIRED"
+          raise "Media container has expired. The container was not published within 24 hours."
+        when "ERROR"
+          raise "Media container failed to complete the publishing process."
+        when "PUBLISHED"
+          raise "Media container has already been published."
+        else
+          raise "Unknown media container status: #{status}"
+        end
       end
     end
 
