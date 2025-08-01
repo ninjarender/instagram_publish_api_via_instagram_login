@@ -64,6 +64,14 @@ user_details = InstagramPublishApiViaInstagramLogin::UserDetails.new(
 user_info = user_details.get_user_info(
   fields: 'id,username,account_type'
 )
+
+# Get long-lived access token (60 days)
+long_lived_token = user_details.get_long_lived_access_token(
+  client_secret: 'your_app_secret'
+)
+
+# Refresh access token (extends for another 60 days)
+refreshed_token = user_details.refresh_access_token
 ```
 
 ### Publishing
@@ -81,14 +89,23 @@ result = publisher.publish_media(
   media_type: 'IMAGE'
 )
 
-# Publish carousel
+# Publish image with caption
+result = publisher.publish_media(
+  ig_id: instagram_business_account_id,
+  media_url: 'https://example.com/image.jpg',
+  media_type: 'IMAGE',
+  caption: 'Beautiful sunset! 🌅 #nature #photography'
+)
+
+# Publish carousel with caption
 result = publisher.publish_media(
   ig_id: instagram_business_account_id,
   media_url: [
     'https://example.com/image1.jpg',
     'https://example.com/image2.jpg'
   ],
-  media_type: 'CAROUSEL'
+  media_type: 'CAROUSEL',
+  caption: 'Photo collection from my trip ✈️ #travel #memories'
 )
 
 # That's it! publish_media handles everything automatically:
@@ -117,11 +134,15 @@ end
 
 ## Supported Media Types
 
-- **IMAGE** - Single images (JPEG, PNG)
-- **VIDEO** - Single videos (MP4, MOV)
-- **REELS** - Instagram Reels
-- **STORIES** - Instagram Stories
-- **CAROUSEL** - Multiple images in a single post (automatically handled when passing an array of URLs)
+- **IMAGE** - Single images (JPEG, PNG) with optional caption
+- **VIDEO** - Single videos (MP4, MOV) with optional caption
+- **REELS** - Instagram Reels with optional caption
+- **STORIES** - Instagram Stories with optional caption
+- **CAROUSEL** - Multiple images in a single post with optional caption (automatically handled when passing an array of URLs)
+
+**Features:**
+- **Captions** - Add text descriptions, hashtags, and mentions to your posts
+- **Token Management** - Get long-lived tokens and refresh existing tokens
 
 **Note:** Currently, carousel posts support only images. Support for mixed media types (images + videos) in carousels will be added in future versions.
 

@@ -6,22 +6,22 @@ require_relative "base_client"
 module InstagramPublishApiViaInstagramLogin
   # Handles Instagram media publishing
   class Publisher < BaseClient
-    def publish_media(ig_id:, media_url:, media_type: "IMAGE")
+    def publish_media(ig_id:, media_url:, media_type: "IMAGE", caption: nil)
       path = "#{INSTAGRAM_GRAPH_API_ENDPOINT}/#{GRAPH_API_VERSION}/#{ig_id}/media_publish"
 
       media_container_id = if media_url.is_a?(Array)
                              children_ids = media_url.map do |url|
                                create_media_container(
-                                 ig_id: ig_id, media_url: url, is_carousel_item: true
+                                 ig_id: ig_id, media_url: url, is_carousel_item: true, caption: caption
                                )
                              end
 
                              create_media_container(
-                               ig_id: ig_id, media_url: children_ids, media_type: media_type
+                               ig_id: ig_id, media_url: children_ids, media_type: media_type, caption: caption
                              )
                            else
                              create_media_container(
-                               ig_id: ig_id, media_url: media_url, media_type: media_type
+                               ig_id: ig_id, media_url: media_url, media_type: media_type, caption: caption
                              )
                            end
 
@@ -33,10 +33,10 @@ module InstagramPublishApiViaInstagramLogin
 
     private
 
-    def create_media_container(ig_id:, media_url:, media_type: "IMAGE", is_carousel_item: false, upload_type: nil)
+    def create_media_container(ig_id:, media_url:, media_type: "IMAGE", is_carousel_item: false, upload_type: nil, caption: nil)
       path = "#{INSTAGRAM_GRAPH_API_ENDPOINT}/#{GRAPH_API_VERSION}/#{ig_id}/media"
 
-      body = { access_token: access_token, media_type: media_type }
+      body = { access_token: access_token, media_type: media_type, caption: caption }
 
       case media_type
       when "IMAGE"
@@ -44,7 +44,6 @@ module InstagramPublishApiViaInstagramLogin
       when "VIDEO", "REELS", "STORIES"
         body[:video_url] = media_url
       when "CAROUSEL"
-        body[:caption] = "Instagram Carousel"
         body[:children] = media_url
       end
 
