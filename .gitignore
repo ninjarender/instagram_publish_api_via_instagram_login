@@ -9,3 +9,5 @@
 
 # rspec failure tracking
 .rspec_status
+
+instagram_publish_api_via_instagram_login-*.gem
